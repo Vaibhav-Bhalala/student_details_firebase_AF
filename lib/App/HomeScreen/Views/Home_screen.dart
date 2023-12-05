@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:student_detail/App/Utils/Helper/Cloud_Firestore_Helper/cloud_firestore_helper.dart';
@@ -85,6 +86,36 @@ class HomeScreen extends StatelessWidget {
         },
         label: Text("Add Details"),
         icon: Icon(Icons.add),
+      ),
+      body: StreamBuilder(
+        stream: CloudFirestoreHelper.cloudFirestoreHelper.FetchUser(),
+        builder: (ctx, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("${snapshot.error}"),
+            );
+          } else if (snapshot.hasData) {
+            List<QueryDocumentSnapshot<Map<String, dynamic>>>? fetcheddata =
+                snapshot.data?.docs;
+
+            return ListView.builder(
+              itemBuilder: (ctx, i) {
+                return Card(
+                  elevation: 5,
+                  child: ListTile(
+                    title: Text("${fetcheddata?[i]['name']}"),
+                    subtitle: Text("${fetcheddata?[i]['course']}"),
+                    trailing: Text("${fetcheddata?[i]['Id']}"),
+                  ),
+                );
+              },
+              itemCount: fetcheddata?.length,
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }
